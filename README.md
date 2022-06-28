@@ -1,1 +1,1 @@
-# deepDeband
+# Deep Image Debanding
