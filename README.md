@@ -12,4 +12,4 @@ Banding or false contour is an annoying visual artifact whose impact negatively 
 1. Install the prerequisites with ```pip install -r requirements.txt```
 2. Place your input images in [input/](input/)
 3. Choose the version of deepDeband to run (f or w) with ```python deepDeband --version f``` or ```python deepDeband --version f```
-3. The output images are located in [output/deepDeband-f](output/deepDeband-f) or [output/deepDeband-w](output/deepDeband-w)
+3. The output images are located in [output/deepDeband-f/](output/deepDeband-f/) or [output/deepDeband-w/](output/deepDeband-w/)
