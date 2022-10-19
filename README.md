@@ -13,3 +13,7 @@ Banding or false contour is an annoying visual artifact whose impact negatively 
 2. Place your input images in [input/](input/)
 3. Choose the version of deepDeband to run (f or w) with ```python deepDeband --version f``` or ```python deepDeband --version f```
 3. The output images are located in [output/deepDeband-f/](output/deepDeband-f/) or [output/deepDeband-w/](output/deepDeband-w/)
+
+
+## Dataset
+The dataset of 51,490 pairs of matching banded and pristine image patches of size 256x256 is available here: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7224906.svg)](https://doi.org/10.5281/zenodo.7224906)
