@@ -3,7 +3,7 @@
                batch_size: 1                             
           checkpoints_dir: ./checkpoints                 
                 crop_size: 256                           
-                 dataroot: ../temp/deepDeband-w/loaded   	[default: None]
+                 dataroot: ../src/temp/deepDeband-w/loaded	[default: None]
              dataset_mode: single                        
                 direction: AtoB                          
           display_winsize: 256                           
@@ -33,7 +33,7 @@
                 output_nc: 3                             
                     phase: test                          
                preprocess: resize_and_crop               
-              results_dir: ../temp/deepDeband-w/debanded 	[default: ./results/]
+              results_dir: ../src/temp/deepDeband-w/debanded	[default: ./results/]
            serial_batches: False                         
                    suffix:                               
                   verbose: False                         
