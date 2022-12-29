@@ -21,8 +21,9 @@ Banding or false contour is an annoying visual artifact whose impact negatively 
 ## Running the Model
 1. Install the prerequisites with ```pip install -r requirements.txt```
 2. Place your input images in [input/](input/)
-3. Choose the version of deepDeband to run (f or w) with ```python deepDeband --version f``` or ```python deepDeband --version w```
-3. The output images are located in [output/deepDeband-f/](output/deepDeband-f/) or [output/deepDeband-w/](output/deepDeband-w/)
+3. Navigate to the src directory with ```cd src```
+4. Choose the version of deepDeband to run (f or w) with ```python deepDeband.py --version f``` or ```python deepDeband.py --version w```
+5. The output images are located in [output/deepDeband-f/](output/deepDeband-f/) or [output/deepDeband-w/](output/deepDeband-w/)
 
 
 ## Dataset

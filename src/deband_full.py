@@ -10,19 +10,19 @@ def deband_image(file, gpu_ids):
     dim = max(img.size)
     img.close()
 
-    os.chdir('pytorch-CycleGAN-and-pix2pix')
+    os.chdir('../pytorch-CycleGAN-and-pix2pix')
     command = f'python test.py --name deepDeband-f --model test --netG unet_256 --norm batch \
-        --dataroot ../temp/deepDeband-f/loaded --results_dir ../temp/deepDeband-f/debanded \
+        --dataroot ../src/temp/deepDeband-f/loaded --results_dir ../src/temp/deepDeband-f/debanded \
         --dataset_mode single --gpu_ids {gpu_ids} --preprocess none --crop_size {dim} --load_size {dim}'
 
     os.system(command)
-    os.chdir('../')
+    os.chdir('../src')
 
 
 def process_image(file, image_size):
     img = Image.open(f'temp/deepDeband-f/debanded/deepDeband-f/test_latest/images/{file}')
     img = img.crop((0, 0, image_size[0], image_size[1]))
-    img.save(f'output/deepDeband-f/{file[:-9]+".png"}')
+    img.save(f'../output/deepDeband-f/{file[:-9]+".png"}')
 
 
 def deband_images(image_sizes, gpu_ids):

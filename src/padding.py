@@ -36,6 +36,6 @@ def pad_images(image_sizes, version):
     for file in os.listdir(f'temp/deepDeband-{version}/padded'):
         os.remove(f'temp/deepDeband-{version}/padded/{file}')
 
-    for file in os.listdir('input'):
-        padded_img = pad_image(f'input/{file}', image_sizes)
+    for file in os.listdir('../input'):
+        padded_img = pad_image(f'../input/{file}', image_sizes)
         padded_img.save(f'temp/deepDeband-{version}/padded/{file}')
