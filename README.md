@@ -1,7 +1,7 @@
 # Deep Image Debanding
 This repository contains the implementation for the following work:
 
-Raymond Zhou, Shahrukh Athar, Zhongling Wang, and Zhou Wang, “Deep Image Debanding,” in IEEE International Conference on Image Processing (ICIP), Bordeaux, France, Oct. 2022, [arXiv:2110.08569](https://arxiv.org/abs/2110.08569)
+Raymond Zhou, Shahrukh Athar, Zhongling Wang, and Zhou Wang, “Deep Image Debanding,” in IEEE International Conference on Image Processing (ICIP), Bordeaux, France, Oct. 2022, [IEEE Xplore](https://doi.org/10.1109/ICIP46576.2022.9897680)
 
 
 ## Abstract
