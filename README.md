@@ -28,3 +28,7 @@ Banding or false contour is an annoying visual artifact whose impact negatively 
 
 ## Dataset
 The dataset of 51,490 pairs of matching banded and pristine image patches of size 256x256 is available here: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7224906.svg)](https://doi.org/10.5281/zenodo.7224906)
+
+
+## Model
+In case there are any issues with downloading the model in this repo through GitHub LFS, it is also available here: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7523437.svg)](https://doi.org/10.5281/zenodo.7523437). After downloading and extracting the zip file, place the ```deepDeband-f``` and ```deepDeband-w``` folders into [pytorch-CycleGAN-and-pix2pix/checkpoints/](pytorch-CycleGAN-and-pix2pix/checkpoints/).
