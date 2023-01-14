@@ -1,3 +1,4 @@
+import math
 import os
 import shutil
 
@@ -34,7 +35,7 @@ def update_pixel_one(pixel_pos, pixels_data, pixels_new, dimensions):
     pixels_new[i, j] = pixels_data[centre][i-centre[0], j-centre[1]]
 
 
-def update_pixel_two(pixel_pos, direction, pixels_data, image_centres, pixels_new, dimensions):
+def update_pixel_two(pixel_pos, direction, pixels_data, image_centres, pixels_new, dimensions, pixels_old, image_sums):
     i, j = pixel_pos
     width, height = dimensions
 
@@ -51,8 +52,16 @@ def update_pixel_two(pixel_pos, direction, pixels_data, image_centres, pixels_ne
         pixels_new[i, j] = pixels_data[larger][i-larger[0], j-larger[1]]
         return
 
-    w_smaller = 1 / np.linalg.norm(cur-image_centres[smaller])
-    w_larger = 1 / np.linalg.norm(cur-image_centres[larger])
+    smaller_dist = np.linalg.norm(cur-image_centres[smaller])
+    larger_dist = np.linalg.norm(cur-image_centres[larger])
+
+    smaller_cont = content_error(pixels_old[i, j], image_sums[smaller])
+    larger_cont = content_error(pixels_old[i, j], image_sums[larger])
+
+    sigma_g, sigma_l = 2, 64
+
+    w_smaller = math.exp(- smaller_dist / (2 * sigma_g**2) - smaller_cont / (2 * sigma_l**2))
+    w_larger = math.exp(- larger_dist / (2 * sigma_g**2) - larger_cont / (2 * sigma_l**2))
 
     weighted_smaller = [w_smaller*pixel for pixel in pixels_data[smaller][i-smaller[0], j-smaller[1]]]
     weighted_larger = [w_larger*pixel for pixel in pixels_data[larger][i-larger[0], j-larger[1]]]
@@ -62,7 +71,16 @@ def update_pixel_two(pixel_pos, direction, pixels_data, image_centres, pixels_ne
     pixels_new[i, j] = tuple(int(pixel / (w_smaller+w_larger)) for pixel in pixels)
 
 
-def update_pixel_four(pixel_pos, pixels_data, image_centres, pixels_new):
+def content_error(pixel_values, patch_values):
+    pixel_values = np.array(pixel_values, dtype=np.uint32)
+
+    error = patch_values[0] - 2*np.dot(patch_values[1], pixel_values) + np.sum(pixel_values**2)*(256*256)
+    error = math.sqrt(error / (256 * 256 * 3))
+
+    return error
+
+
+def update_pixel_four(pixel_pos, pixels_data, image_centres, pixels_new, pixels_old, image_sums):
     i, j = pixel_pos
 
     top_left = ((int(i/128)-1)*128, (int(j/128)-1)*128)
@@ -76,12 +94,25 @@ def update_pixel_four(pixel_pos, pixels_data, image_centres, pixels_new):
         pixels_new[i, j] = pixels_data[bot_right][i-bot_right[0], j-bot_right[1]]
         return
 
-    w_tl = 1 / np.linalg.norm(cur-image_centres[top_left])
-    w_tr = 1 / np.linalg.norm(cur-image_centres[top_right])
-    w_bl = 1 / np.linalg.norm(cur-image_centres[bot_left])
-    w_br = 1 / np.linalg.norm(cur-image_centres[bot_right])
+    tl_dist = np.linalg.norm(cur-image_centres[top_left])
+    tr_dist = np.linalg.norm(cur-image_centres[top_right])
+    bl_dist = np.linalg.norm(cur-image_centres[bot_left])
+    br_dist = np.linalg.norm(cur-image_centres[bot_right])
 
-    weighted_tl= [w_tl*pixel for pixel in pixels_data[top_left][i-top_left[0], j-top_left[1]]]
+    tl_cont = content_error(pixels_old[i, j], image_sums[top_left])
+    tr_cont = content_error(pixels_old[i, j], image_sums[top_right])
+    bl_cont = content_error(pixels_old[i, j], image_sums[bot_left])
+    br_cont = content_error(pixels_old[i, j], image_sums[bot_right])
+
+    sigma_g, sigma_l = 2, 64
+
+    w_tl = math.exp(- tl_dist / (2 * sigma_g**2) - tl_cont / (2 * sigma_l**2))
+    w_tr = math.exp(- tr_dist / (2 * sigma_g**2) - tr_cont / (2 * sigma_l**2))
+    w_bl = math.exp(- bl_dist / (2 * sigma_g**2) - bl_cont / (2 * sigma_l**2))
+    w_br = math.exp(- br_dist / (2 * sigma_g**2) - br_cont / (2 * sigma_l**2))
+
+
+    weighted_tl = [w_tl*pixel for pixel in pixels_data[top_left][i-top_left[0], j-top_left[1]]]
     weighted_tr = [w_tr*pixel for pixel in pixels_data[top_right][i-top_right[0], j-top_right[1]]]
     weighted_bl = [w_bl*pixel for pixel in pixels_data[bot_left][i-bot_left[0], j-bot_left[1]]]
     weighted_br = [w_br*pixel for pixel in pixels_data[bot_right][i-bot_right[0], j-bot_right[1]]]
@@ -94,8 +125,10 @@ def update_pixel_four(pixel_pos, pixels_data, image_centres, pixels_new):
 def process_image(file, image_size):
     pixels_data = {}
     image_centres = {}
+    image_sums = {}
 
     padded_img = Image.open(f'temp/deepDeband-w/padded/{file}')
+    pixels_old = padded_img.load()
     width, height = padded_img.size
     padded_img.close()
 
@@ -106,6 +139,9 @@ def process_image(file, image_size):
             pixels_data[(i, j)] = img.load()
             image_centres[(i, j)] = np.array((i+127, j+127))
 
+            image_array = np.array(img, dtype=np.uint32)
+            image_sums[(i, j)] = (np.sum(image_array**2), np.einsum('ijk->k', image_array))
+
     img_new = Image.new("RGB", (width, height))
     pixels_new = img_new.load()
 
@@ -115,13 +151,13 @@ def process_image(file, image_size):
                 update_pixel_one((i, j), pixels_data, pixels_new, (width, height))
 
             elif (127 <= i <= width-129) and (j <= 127 or j >= height-128):
-                update_pixel_two((i, j), 'lr', pixels_data, image_centres, pixels_new, (width, height))
+                update_pixel_two((i, j), 'lr', pixels_data, image_centres, pixels_new, (width, height), pixels_old, image_sums)
 
             elif (i <= 127 or i >= width-128) and (127 <= j <= height-129):
-                update_pixel_two((i, j), 'ud', pixels_data, image_centres, pixels_new, (width, height))
+                update_pixel_two((i, j), 'ud', pixels_data, image_centres, pixels_new, (width, height), pixels_old, image_sums)
 
             else:
-                update_pixel_four((i, j), pixels_data, image_centres, pixels_new)
+                update_pixel_four((i, j), pixels_data, image_centres, pixels_new, pixels_old, image_sums)
 
     img_new = img_new.crop((0, 0, image_size[0], image_size[1]))
     img_new.save(f'../output/deepDeband-w/{file}')
